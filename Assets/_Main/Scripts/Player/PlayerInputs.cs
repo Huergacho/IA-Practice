@@ -15,6 +15,10 @@ public class PlayerInputs : MonoBehaviour
         if (_getH != 0 || _getV != 0) { return true; }
         else return false;
     }
+    public bool IsRunning()
+    {
+        return Input.GetKey(KeyCode.LeftShift);
+    }
     public void UpdateInputs()
     {
         _getH = Input.GetAxis("Horizontal");
