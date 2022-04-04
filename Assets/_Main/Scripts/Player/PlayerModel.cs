@@ -21,27 +21,31 @@ public class PlayerModel : MonoBehaviour
     #region Movement
     public void Move(Vector2 dir)
     {
-
         _rb.velocity = new Vector3(currentSpeed * dir.normalized.x, _rb.velocity.y, currentSpeed * dir.normalized.y);
-        transform.LookAt(GetMousePosition());
+        SmoothRotation(GetMousePosition());
     }
+
     public void Idle()
     {
         _rb.velocity = Vector3.zero;
-        //transform.LookAt(CorrectRotation());
         SmoothRotation(GetMousePosition());
-
     }
+
     private void Walk(Vector2 dir)
     {
-        currentSpeed = Mathf.SmoothStep(currentSpeed, _stats.WalkSpeed, Time.deltaTime * 10);
-
+        ModifySpeed(_stats.WalkSpeed);
         Move(dir);
     }
+
     private void Run(Vector2 dir)
     {
-        currentSpeed = Mathf.SmoothStep(currentSpeed, _stats.RunSpeed, Time.deltaTime * 10);
+        ModifySpeed(_stats.RunSpeed);
         Move(dir);
+    }
+    
+    private void ModifySpeed(float desiredSpeed)
+    {
+        currentSpeed = Mathf.SmoothStep(currentSpeed, desiredSpeed, Time.deltaTime * 10);
     }
     #endregion
 

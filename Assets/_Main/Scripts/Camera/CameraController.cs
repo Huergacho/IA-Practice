@@ -6,6 +6,7 @@ public class CameraController : MonoBehaviour
 {
 
     CameraModel _model;
+    CameraView _cameraView;
     public event Action onIdle;
     public event Action<Transform> onSeek;
     private FSM<CameraStates> _fsm;
@@ -15,12 +16,14 @@ public class CameraController : MonoBehaviour
     {
         _model = GetComponent<CameraModel>();
         _lineOfSight = GetComponent<LineOfSight>();
+        _cameraView = GetComponent<CameraView>();
         InitFsm();
 
     }
     void Start()
     {
         _model.SuscribeEvents(this);
+        _cameraView.SuscribeEvents(this);
     }
 
 

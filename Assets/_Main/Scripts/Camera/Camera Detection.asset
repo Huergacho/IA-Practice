@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 592e5a96891db284f9c15e49cd57803c, type: 3}
   m_Name: Camera Detection
   m_EditorClassIdentifier: 
-  _detectionDistance: 5
-  _aperture: 90
+  _detectionDistance: 12
+  _aperture: 60
   _obstacleLayers:
     serializedVersion: 2
     m_Bits: 64

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walkSpeed: 5
   runSpeed: 15
-  rotSpeed: 5
+  rotSpeed: 2
