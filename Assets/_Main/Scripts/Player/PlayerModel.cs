@@ -2,13 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerModel : MonoBehaviour
+public class PlayerModel : MonoBehaviour,IVel
 {
     [SerializeField] private PlayerStats _stats;
     [SerializeField] private float currentSpeed;
 
     private Camera _camera;
     private Rigidbody _rb;
+
+    public float GetVel => _rb.velocity.magnitude;
+
+    public Vector3 GetFoward => _rb.velocity.normalized;
+
+    public Transform GetTarget => transform;
     #region UnityMethods
     private void Awake()
     {

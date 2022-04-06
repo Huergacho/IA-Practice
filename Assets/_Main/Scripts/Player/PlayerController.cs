@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-[RequireComponent (typeof (PlayerModel), typeof (PlayerView), typeof (PlayerInputs))]
+[RequireComponent (typeof (PlayerModel), typeof (PlayerInputs))]
 public class PlayerController : MonoBehaviour
 {
     enum PlayerHelper

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 [CreateAssetMenu (fileName = "LOSProperties", menuName = "Line Of Sight Properties", order = 1)]
-class LineOfSightProperties : ScriptableObject
+public class LineOfSightProperties : ScriptableObject
 {
     [SerializeField] private float _detectionDistance;
     public float DetectionDistance => _detectionDistance;

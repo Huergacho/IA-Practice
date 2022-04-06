@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 public class FSM<T>
 {
     private IState<T> _currentState;
+    public IState<T> CurrentState => _currentState;
     public FSM(State<T> initalState)
     {
         SetInitialState(initalState);

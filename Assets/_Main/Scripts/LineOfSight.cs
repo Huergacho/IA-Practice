@@ -8,6 +8,7 @@ public class LineOfSight : MonoBehaviour
 {
     [SerializeField] private Transform origin;
     [SerializeField] private LineOfSightProperties _properties;
+    public LineOfSightProperties Properties => _properties;
     public bool CanSeeTarget(Transform target)
     {
         Vector3 diff = target.position - origin.position;
