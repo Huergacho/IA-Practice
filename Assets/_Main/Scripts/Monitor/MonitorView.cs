@@ -5,14 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 [RequireComponent(typeof(Animator))]
-public class CameraView : MonoBehaviour
+public class MonitorView : MonoBehaviour
 {
     private Animator _animator;
     private void Awake()
     {
         _animator = GetComponent<Animator>();
     }
-    public void SuscribeEvents(CameraController controller)
+    public void SuscribeEvents(MonitorController controller)
     {
         controller.onIdle += IdleAnimation;
         controller.onSeek += DetectAnimation;

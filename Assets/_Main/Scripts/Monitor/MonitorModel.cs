@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraModel : MonoBehaviour
+public class MonitorModel : MonoBehaviour
 {
     [SerializeField] private GameObject aux;
     [SerializeField] private float rotationSpeed;
@@ -18,7 +18,7 @@ public class CameraModel : MonoBehaviour
     {
 
     }
-    public void SuscribeEvents(CameraController controller)
+    public void SuscribeEvents(MonitorController controller)
     {
         controller.onIdle += Idle;
         controller.onSeek += Seek;

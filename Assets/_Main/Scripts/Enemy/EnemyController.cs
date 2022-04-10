@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,36 +15,41 @@ public class EnemyController : MonoBehaviour
         Chase
     }
     private EnemyModel _enemyModel;
+    private EnemyView _enemyView;
     private FSM<enemyStates> _fsm;
-    public event Action onIdle;
-    public event Action onPatrol;
-    public event Action<Vector3> onRotate;
-    public event Action<Vector3> onSeek;
-    public event Action<Vector3> onChase;
+
     private LineOfSight _lineOfSight;
     private INode _root;
     [SerializeField]private PlayerModel _actualTarget = null;
     private ObstacleAvoidance _obstacleAvoidance;
     [SerializeField] private ObstacleAvoidanceSO obstacleAvoidanceSO;
+
+
+    public event Action onIdle;
+    public event Action onPatrol;
+    public event Action<Vector3> onRotate;
+    public event Action<Vector3> onSeek;
+    public event Action<Vector3> onChase;
+    public event Action<bool> onDetect;
     private void Awake()
     {
         _enemyModel = GetComponent<EnemyModel>();
+        _enemyView = GetComponent<EnemyView>();
         _lineOfSight = GetComponent<LineOfSight>();
-        _obstacleAvoidance = new ObstacleAvoidance
-                (obstacleAvoidanceSO.ObstacleLayers,obstacleAvoidanceSO.Radius, transform, 
-                _actualTarget,obstacleAvoidanceSO.Angle,obstacleAvoidanceSO.PredictionTime,obstacleAvoidanceSO.AvoidanceMult, obstacleAvoidanceSO.BehaviourMult);
+        _obstacleAvoidance = new ObstacleAvoidance(transform, _actualTarget,obstacleAvoidanceSO);
     }
     private void Start()
     {
-        //_enemyModel.SuscribeEvents(this);
+        _enemyModel.SuscribeEvents(this);
+        _enemyView.SuscribeEvents(this);
         InitDesitionTree();
         InitFSM();
     }
     private void InitFSM()
     {
-        var idle = new EnemyIdleStates<enemyStates>(onIdle,_root);
+        var idle = new EnemyIdleStates<enemyStates>(IdleCommand,_root);
         var patrol = new EnemyPatrolState<enemyStates>(onPatrol, _root);
-        var seek = new EnemySeekState<enemyStates>(Seek, _root, _obstacleAvoidance);
+        var seek = new EnemySeekState<enemyStates>(Seek, _root, _obstacleAvoidance,ObstacleAvoidance.Behaviours.Seek);
         var chase = new EnemyChaseState<enemyStates>(Chase, _root, _obstacleAvoidance,ObstacleAvoidance.Behaviours.Persuit);
 
         idle.AddTransition(enemyStates.Patrol, patrol);
@@ -51,6 +57,7 @@ public class EnemyController : MonoBehaviour
         idle.AddTransition(enemyStates.Chase, chase);
 
         seek.AddTransition(enemyStates.Idle, idle);
+        seek.AddTransition(enemyStates.Chase, chase);
 
         chase.AddTransition(enemyStates.Idle, idle);
 
@@ -69,39 +76,50 @@ public class EnemyController : MonoBehaviour
         INode patrol = new ActionNode(() => _fsm.Transition(enemyStates.Patrol));
         INode idle = new ActionNode(() => _fsm.Transition(enemyStates.Idle));
 
-        INode QOnSight = new QuestionNode(OnSight,chase, idle);
+        INode QCanChase = new QuestionNode(CheckDistance, chase, seek);
+        INode QOnSight = new QuestionNode(DetectCommand, QCanChase, idle);
         _root = QOnSight;
     }
 
-    private bool OnSight()
+    private bool DetectCommand()
     {
         if (!_lineOfSight.CheckForOneTarget())
         {
+            onDetect?.Invoke(false);
+
             return false;
         }
 
         _obstacleAvoidance.SetTarget(_actualTarget);
+        onDetect?.Invoke(true);
         return true;
 
     }
-    private void OnIdle()
+    private void IdleCommand()
     {
         onIdle?.Invoke();
     }
+    private bool CheckDistance()
+    {
+        var distance = Vector3.Distance(transform.position, _actualTarget.transform.position);
+        if(distance > obstacleAvoidanceSO.SeekDistance)
+        {
+            return false;
+        }
+        return true;
+    }
     private void Seek()
     {
-        var direction = _obstacleAvoidance.GetFixedDir();
-        onSeek?.Invoke(direction);
-        onRotate?.Invoke(direction);
+        onSeek?.Invoke(transform.forward);
+        onRotate?.Invoke(_obstacleAvoidance.GetFixedDir());
     }
     private void Chase()
     {
-        _enemyModel.Chase(transform.forward);
-        _enemyModel.LookDir(_obstacleAvoidance.GetFixedDir());
+        onChase?.Invoke(transform.forward);
+        onRotate?.Invoke(_obstacleAvoidance.GetFixedDir());
     }
     private void Update()
     {
- 
         _fsm.UpdateState();
     }
     public void OnDrawGizmosSelected()

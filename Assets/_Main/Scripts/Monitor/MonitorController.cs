@@ -2,21 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-public class CameraController : MonoBehaviour
+public class MonitorController : MonoBehaviour
 {
 
-    CameraModel _model;
-    CameraView _cameraView;
+    MonitorModel _model;
+    MonitorView _cameraView;
     public event Action onIdle;
     public event Action<Transform> onSeek;
-    private FSM<CameraStates> _fsm;
-    [SerializeField] private LineOfSight _lineOfSight;
+    private FSM<MonitorStates> _fsm;
+    private LineOfSight _lineOfSight;
     // Start is called before the first frame update
     private void Awake()
     {
-        _model = GetComponent<CameraModel>();
+        _model = GetComponent<MonitorModel>();
         _lineOfSight = GetComponent<LineOfSight>();
-        _cameraView = GetComponent<CameraView>();
+        _cameraView = GetComponent<MonitorView>();
         InitFsm();
 
     }
@@ -29,15 +29,15 @@ public class CameraController : MonoBehaviour
 
     private void InitFsm()
     {
-        var idle = new CameraIdleState<CameraStates>(CameraStates.Seek, OnIdle, _lineOfSight);
-        var seek = new CameraSeekState<CameraStates>(CameraStates.Idle, OnDetect, _lineOfSight);
+        var idle = new MonitorIdleState<MonitorStates>(MonitorStates.Seek, OnIdle, _lineOfSight);
+        var seek = new MonitorSeekState<MonitorStates>(MonitorStates.Idle, OnDetect, _lineOfSight);
 
-        idle.AddTransition(CameraStates.Seek, seek);
+        idle.AddTransition(MonitorStates.Seek, seek);
 
-        seek.AddTransition(CameraStates.Idle, idle);
+        seek.AddTransition(MonitorStates.Idle, idle);
 
 
-        _fsm = new FSM<CameraStates>(idle);
+        _fsm = new FSM<MonitorStates>(idle);
     }
     private void Update()
     {

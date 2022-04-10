@@ -17,6 +17,7 @@ public class EnemyChaseState<T> : State<T>
         _obs = obs;
         _obsEnum = obsEnum;
     }
+
     public override void Awake()
     {
         _obs.SetActualBehaviour(_obsEnum);

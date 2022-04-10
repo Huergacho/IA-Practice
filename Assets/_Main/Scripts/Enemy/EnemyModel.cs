@@ -6,20 +6,30 @@ using System.Threading.Tasks;
 using UnityEngine;
 public class EnemyModel : MonoBehaviour
 {
-    [SerializeField] private float speed;
     [SerializeField] private float rotationSpeed;
+    [SerializeField] private float seekSpeed;
+    [SerializeField] private float chaseSpeed;
     private Rigidbody _rb;
     private void Start()
     {
         _rb = GetComponent<Rigidbody>();
     }
+    private void Move(Vector3 dir, float desiredSpeed)
+    {
+        _rb.velocity = new Vector3(dir.x * desiredSpeed, _rb.velocity.y, dir.z * desiredSpeed);
+
+    }
     public void Chase(Vector3 dir)
     {
-        _rb.velocity = new Vector3(dir.x * speed, _rb.velocity.y, dir.z * speed);
+        Move(dir, chaseSpeed);
     }
     private void Patrol()
     {
 
+    }
+    private void Seek(Vector3 dir)
+    {
+        Move(dir, seekSpeed);
     }
     private void Idle()
     {
@@ -42,10 +52,12 @@ public class EnemyModel : MonoBehaviour
     }
     public void SuscribeEvents(EnemyController controller)
     {
-        controller.onSeek += Chase;
+        controller.onChase += Chase;
         controller.onIdle += Idle;
         controller.onPatrol += Patrol;
-        controller.onRotate += SmoothRotation;
+        //controller.onRotate += SmoothRotation;
+        controller.onRotate += LookDir;
+        controller.onSeek += Seek;
     }
 }
 

@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class CameraIdleState<T> : State<T>
+public class MonitorIdleState<T> : State<T>
 {
     T _seekInput;
     private event Action _onIdle;
     private LineOfSight _lineOfSight;
-    public CameraIdleState(T seekInput, Action onIdle,LineOfSight lineOfSight)
+    public MonitorIdleState(T seekInput, Action onIdle,LineOfSight lineOfSight)
     {
         _onIdle = onIdle;
         _seekInput = seekInput;

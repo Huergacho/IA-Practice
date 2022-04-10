@@ -13,26 +13,18 @@ public class ObstacleAvoidance : ISteering
         Persuit,
         Evade
     }
-    private LayerMask _obstacleLayerMask;
-    private float _radius;
     private Transform _self;
-    private float _angle;
-    private float _avoidanceMult;
-    private float _behaviourMult;
     private IVel _target;
+    private ObstacleAvoidanceSO _properties;
     private Dictionary<Behaviours, ISteering> _behaviourDict = new Dictionary<Behaviours, ISteering>();
     private ISteering _actualBehaviour;
     public ISteering ActualBehaviour => _actualBehaviour;
-    public ObstacleAvoidance(LayerMask obstaclesLayer, float radius, Transform self, IVel target, float angle, float predictionTime, float avoidanceMultiplier, float behaviourMult)
+    public ObstacleAvoidance(Transform self, IVel target, ObstacleAvoidanceSO properties)
     {
-        _obstacleLayerMask = obstaclesLayer;
-        _radius = radius;
+        _properties = properties;
         _self = self;
-        _angle = angle;
         _target = target;
-        _avoidanceMult = avoidanceMultiplier;
-        _behaviourMult = behaviourMult;
-        SetBehaviours(target.GetTarget, self, _target, predictionTime);
+        SetBehaviours(target.GetTarget, self, _target, _properties.PredictionTime);
     }
 
     void SetBehaviours(Transform target, Transform self, IVel targetVel, float predictionTime)
@@ -64,15 +56,10 @@ public class ObstacleAvoidance : ISteering
             return _behaviourDict[behaviour];
         }
     }
-    public void SetTarget(IVel target)
-    {
-        _target = target;
-        _actualBehaviour.SetTarget(target.GetTarget);
-    }
     public Vector3 GetDir()
     {
         
-        Collider[] obj = Physics.OverlapSphere(_self.position, _radius, _obstacleLayerMask);
+        Collider[] obj = Physics.OverlapSphere(_self.position, _properties.Radius, _properties.ObstacleLayers);
         Collider closestObj = null;
         float nearDistance = 0;
         for (int i = 0; i < obj.Length; i++)
@@ -80,7 +67,7 @@ public class ObstacleAvoidance : ISteering
             Collider currObs = obj[i];
             Vector3 dir = currObs.transform.position - _self.position;
             float currentAngle = Vector3.Angle(_self.forward, dir);
-            if (currentAngle < _angle / 2)
+            if (currentAngle < _properties.Angle / 2)
             {
                 float currentDistance = Vector3.Distance(_self.position, currObs.transform.position);
                 if (closestObj == null || currentDistance < nearDistance)
@@ -92,9 +79,9 @@ public class ObstacleAvoidance : ISteering
         }
         if (closestObj != null)
         {
-            if (nearDistance == _radius)
+            if (nearDistance == _properties.Radius)
             {
-                nearDistance = _radius - 0.00001f;
+                nearDistance = _properties.Radius - 0.00001f;
             }
             var point = closestObj.ClosestPoint(_self.position);
             Vector3 dir = ((_self.position + _self.right * 0.0000000001f) - point);
@@ -105,10 +92,15 @@ public class ObstacleAvoidance : ISteering
     }
     public Vector3 GetFixedDir()
     {
-        var direction = (GetDir() * _avoidanceMult + _actualBehaviour.GetDir() * _behaviourMult).normalized;
+        var direction = (GetDir() * _properties.AvoidanceMult + _actualBehaviour.GetDir() * _properties.BehaviourMult).normalized;
         return direction;
     }
 
+    public void SetTarget(IVel target)
+    {
+        _target = target;
+        _actualBehaviour.SetTarget(target.GetTarget);
+    }
     public void SetTarget(Transform target)
     {
         _actualBehaviour.SetTarget(target);

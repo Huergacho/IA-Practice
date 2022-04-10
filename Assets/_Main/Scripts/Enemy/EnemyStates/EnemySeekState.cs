@@ -6,18 +6,25 @@ using System.Threading.Tasks;
 using UnityEngine;
 public class EnemySeekState<T> : State<T>
 {
-    private Action _onChase;
+    private Action _onSeek;
     private INode _root;
-    public EnemySeekState(Action onChase, INode root, ObstacleAvoidance obs)
+    private ObstacleAvoidance.Behaviours _obsEnum;
+    private ObstacleAvoidance _obs;
+    public EnemySeekState(Action onSeek, INode root, ObstacleAvoidance obs, ObstacleAvoidance.Behaviours obsEnum)
     {
-        _onChase = onChase;
+        _onSeek = onSeek;
         _root = root;
-        obs.SetActualBehaviour(ObstacleAvoidance.Behaviours.Seek);
+        _obs = obs;
+        _obsEnum = obsEnum;
+    }
+    public override void Awake()
+    {
+        _obs.SetActualBehaviour(_obsEnum);
     }
     public override void Execute()
     {
         _root.Execute();
-        _onChase?.Invoke();
+        _onSeek?.Invoke();
     }
 
 }

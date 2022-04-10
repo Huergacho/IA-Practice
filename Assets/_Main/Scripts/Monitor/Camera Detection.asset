@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Camera Detection
   m_EditorClassIdentifier: 
   _detectionDistance: 12
-  _aperture: 180
+  _aperture: 90
   _obstacleLayers:
     serializedVersion: 2
     m_Bits: 512

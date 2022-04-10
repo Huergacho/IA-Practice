@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-public class CameraSeekState<T> : State<T>
+public class MonitorSeekState<T> : State<T>
 {
     private event Action<Transform> _onSeek;
     private LineOfSight _lineOfSight;
     private T _idleInput;
-    public CameraSeekState(T idleInput,Action<Transform> onSeek, LineOfSight lineOfSight)
+    public MonitorSeekState(T idleInput,Action<Transform> onSeek, LineOfSight lineOfSight)
     {
         _idleInput = idleInput;
         _onSeek = onSeek;

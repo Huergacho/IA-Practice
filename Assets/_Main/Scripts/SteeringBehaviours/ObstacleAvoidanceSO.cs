@@ -23,4 +23,10 @@ public class ObstacleAvoidanceSO : ScriptableObject
 
     [SerializeField] private float behaviourMult;
     public float BehaviourMult => behaviourMult;
+
+    [SerializeField] private float chaseTime;
+    public float ChaseTime => chaseTime;
+
+    [SerializeField] private float seekDistance;
+    public float SeekDistance => seekDistance;
 }
