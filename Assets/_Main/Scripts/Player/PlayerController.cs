@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     public event Action _onIdle;
     public event Action<Vector2> _onWalk;
     public event Action<Vector2> _onRun;
+    public event Action _onShoot;
 
     private void Awake()
     {
@@ -34,9 +35,9 @@ public class PlayerController : MonoBehaviour
     }
     private void InitFSM()
     {
-        var idle = new PlayerIdleState<PlayerHelper>(PlayerHelper.Walk, OnIdleCommand, _playerInputs);
-        var walk = new PlayerWalkStates<PlayerHelper>(PlayerHelper.Idle, PlayerHelper.Run, OnWalkCommand, _playerInputs);
-        var run = new PlayerRunState<PlayerHelper>(PlayerHelper.Walk, OnRunCommand, _playerInputs);
+        var idle = new PlayerIdleState<PlayerHelper>(PlayerHelper.Walk, OnIdleCommand,ShootCommand, _playerInputs);
+        var walk = new PlayerWalkState<PlayerHelper>(PlayerHelper.Idle, PlayerHelper.Run, OnWalkCommand,ShootCommand, _playerInputs);
+        var run = new PlayerRunState<PlayerHelper>(PlayerHelper.Walk, OnRunCommand,ShootCommand, _playerInputs);
 
         idle.AddTransition(PlayerHelper.Walk, walk);
 
@@ -64,6 +65,14 @@ public class PlayerController : MonoBehaviour
     private void OnIdleCommand()
     {
         _onIdle?.Invoke();
+    }
+    private void ShootCommand()
+    {
+        _onShoot?.Invoke();
+    }
+    private void ModelShoot()
+    {
+        _playerModel.Shoot();
     }
 
 }

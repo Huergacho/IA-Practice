@@ -4,46 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-public class ObstacleAvoidance : ISteering
+public class ObstacleAvoidance
 {
-    public enum Behaviours
-    {
-        Flee,
-        Seek,
-        Persuit,
-        Evade
-    }
     private Transform _self;
     private IVel _target;
     private ObstacleAvoidanceSO _properties;
-    private Dictionary<Behaviours, ISteering> _behaviourDict = new Dictionary<Behaviours, ISteering>();
+    private Dictionary<Steerings, ISteering> _behaviourDict = new Dictionary<Steerings, ISteering>();
     private ISteering _actualBehaviour;
     public ISteering ActualBehaviour => _actualBehaviour;
-    public ObstacleAvoidance(Transform self, IVel target, ObstacleAvoidanceSO properties)
+    public ObstacleAvoidance(Transform self, IVel target, ObstacleAvoidanceSO properties, Dictionary<Steerings, ISteering> behaviourDict)
     {
         _properties = properties;
         _self = self;
         _target = target;
-        SetBehaviours(target.GetTarget, self, _target, _properties.PredictionTime);
+        _behaviourDict = behaviourDict;
     }
-
-    void SetBehaviours(Transform target, Transform self, IVel targetVel, float predictionTime)
-    {
-        var flee = new Flee(target, self);
-        _behaviourDict.Add(Behaviours.Flee, flee);
-        var seek = new Seek(target, self);
-        _behaviourDict.Add(Behaviours.Seek, seek);
-        var persuit = new Persuit(target, self, targetVel, predictionTime);
-        _behaviourDict.Add(Behaviours.Persuit, persuit);
-        var evade = new Evade(target, self, targetVel, predictionTime);
-        _behaviourDict.Add(Behaviours.Evade, evade);
-        SetActualBehaviour(Behaviours.Seek);
-    }
-    public void SetActualBehaviour(Behaviours desiredBehaviour)
+    public void SetActualBehaviour(Steerings desiredBehaviour)
     {
         _actualBehaviour = _behaviourDict[desiredBehaviour];
+        Debug.Log(_actualBehaviour);
     }
-    public ISteering GetBehaviour(Behaviours behaviour)
+    public ISteering GetBehaviour(Steerings behaviour)
     {
         if (!_behaviourDict.ContainsKey(behaviour))
         {
@@ -104,5 +85,5 @@ public class ObstacleAvoidance : ISteering
     public void SetTarget(Transform target)
     {
         _actualBehaviour.SetTarget(target);
-    } 
+    }
 }

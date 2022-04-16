@@ -24,4 +24,12 @@ public class PlayerInputs : MonoBehaviour
         _getH = Input.GetAxis("Horizontal");
         _getV = Input.GetAxis("Vertical");
     }
+    public bool isShooting()
+    {
+        if (!Input.GetMouseButton(1))
+        {
+            return false;
+        }
+        return true;
+    }
 }

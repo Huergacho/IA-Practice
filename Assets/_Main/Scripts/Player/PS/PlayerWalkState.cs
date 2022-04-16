@@ -4,18 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-public class PlayerWalkStates<T> : State<T>
+public class PlayerWalkState<T> : State<T>
 {
     T _idleInput;
     T _runInput;
     Action<Vector2> _onWalk;
+    Action _onShoot;
     PlayerInputs _playerInputs;
 
-    public PlayerWalkStates(T idleInput, T runInput, Action<Vector2> onWalk, PlayerInputs playerInputs)
+    public PlayerWalkState(T idleInput, T runInput, Action<Vector2> onWalk, Action onShoot, PlayerInputs playerInputs)
     {
         _idleInput = idleInput;
         _runInput = runInput;
         _onWalk = onWalk;
+        _onShoot = onShoot;
         _playerInputs = playerInputs;
     }
     public override void Execute()
@@ -31,6 +33,10 @@ public class PlayerWalkStates<T> : State<T>
         {
             _parentFSM.Transition(_runInput);
             return;
+        }
+        if (_playerInputs.isShooting())
+        {
+            _onShoot?.Invoke();
         }
         _onWalk?.Invoke(new Vector2(_playerInputs.GetH,_playerInputs.GetV));
     }

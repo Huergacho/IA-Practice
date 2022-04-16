@@ -6,6 +6,7 @@ public class PlayerView : MonoBehaviour
     private Animator _animator;
     private float speedValue;
     [SerializeField] private float transitionTime;
+    [SerializeField] private GameObject Lazer;
     private void Awake()
     {
         _animator = GetComponent<Animator>();
@@ -18,6 +19,7 @@ public class PlayerView : MonoBehaviour
         controller._onIdle += Idle;
         controller._onWalk += Walk;
         controller._onRun += Run;
+        controller._onShoot += Shoot;
     }
     void Walk(Vector2 aux)
     {
@@ -43,5 +45,10 @@ public class PlayerView : MonoBehaviour
         }
         _animator.SetFloat("Speed", Mathf.SmoothStep(_animator.GetFloat("Speed"), 0f, Time.deltaTime * transitionTime));
 
+    }
+
+    void Shoot()
+    {
+        _animator.Play("Shoot");
     }
 }

@@ -6,7 +6,9 @@ public class PlayerModel : MonoBehaviour,IVel
 {
     [SerializeField] private PlayerStats _stats;
     [SerializeField] private float currentSpeed;
-
+    [SerializeField] private float currentTime;
+    [SerializeField] private LazerBullet bulletPrefab;
+    [SerializeField] private Transform firePoint;
     private Camera _camera;
     private Rigidbody _rb;
 
@@ -79,7 +81,7 @@ public class PlayerModel : MonoBehaviour,IVel
             }
             else
             {
-                return Vector3.zero;
+                return target;
             }
         }
         else
@@ -87,11 +89,17 @@ public class PlayerModel : MonoBehaviour,IVel
             return Vector3.zero;
         }
     }
+    public void Shoot()
+    {
+        var bulletClone = bulletPrefab;
+        Instantiate(bulletClone, firePoint.position, firePoint.rotation);
+    }
     #endregion
     public void SuscribeEvents(PlayerController controller)
     {
         controller._onWalk += Walk;
         controller._onIdle += Idle;
         controller._onRun += Run;
+        //controller._onShoot += Shoot;
     }
 }

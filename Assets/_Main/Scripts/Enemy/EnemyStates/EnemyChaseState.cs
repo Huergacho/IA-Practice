@@ -9,8 +9,8 @@ public class EnemyChaseState<T> : State<T>
     private Action _onChase;
     private INode _root;
     private ObstacleAvoidance _obs;
-    private ObstacleAvoidance.Behaviours _obsEnum;
-    public EnemyChaseState(Action onChase, INode root, ObstacleAvoidance obs, ObstacleAvoidance.Behaviours obsEnum)
+    private Steerings _obsEnum;
+    public EnemyChaseState(Action onChase, INode root, ObstacleAvoidance obs, Steerings obsEnum)
     {
         _onChase = onChase;
         _root = root;

@@ -11,5 +11,8 @@ public class PlayerStats : ScriptableObject
 
     [SerializeField] private float rotSpeed;
     public float RotSpeed => rotSpeed;
+
+    [SerializeField] private float shootCooldown;
+    public float ShootCooldown => shootCooldown;
 }
 

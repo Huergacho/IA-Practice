@@ -23,6 +23,7 @@ public class EnemyController : MonoBehaviour
     [SerializeField]private PlayerModel _actualTarget = null;
     private ObstacleAvoidance _obstacleAvoidance;
     [SerializeField] private ObstacleAvoidanceSO obstacleAvoidanceSO;
+    private Dictionary<Steerings, ISteering> behaviours = new Dictionary<Steerings,ISteering>();
 
 
     public event Action onIdle;
@@ -36,7 +37,8 @@ public class EnemyController : MonoBehaviour
         _enemyModel = GetComponent<EnemyModel>();
         _enemyView = GetComponent<EnemyView>();
         _lineOfSight = GetComponent<LineOfSight>();
-        _obstacleAvoidance = new ObstacleAvoidance(transform, _actualTarget,obstacleAvoidanceSO);
+        InitBehaviours();
+        _obstacleAvoidance = new ObstacleAvoidance(transform, _actualTarget,obstacleAvoidanceSO,behaviours);
     }
     private void Start()
     {
@@ -45,12 +47,19 @@ public class EnemyController : MonoBehaviour
         InitDesitionTree();
         InitFSM();
     }
+    private void InitBehaviours()
+    {
+        var seek =  new Seek(_actualTarget.transform, transform);
+        behaviours.Add(Steerings.Seek,seek);
+        var persuit = new Persuit(_actualTarget.transform, transform, _actualTarget, obstacleAvoidanceSO.PredictionTime);
+        behaviours.Add(Steerings.Persuit, persuit);
+    }
     private void InitFSM()
     {
         var idle = new EnemyIdleStates<enemyStates>(IdleCommand,_root);
         var patrol = new EnemyPatrolState<enemyStates>(onPatrol, _root);
-        var seek = new EnemySeekState<enemyStates>(Seek, _root, _obstacleAvoidance,ObstacleAvoidance.Behaviours.Seek);
-        var chase = new EnemyChaseState<enemyStates>(Chase, _root, _obstacleAvoidance,ObstacleAvoidance.Behaviours.Persuit);
+        var seek = new EnemySeekState<enemyStates>(Seek, _root, _obstacleAvoidance,Steerings.Seek);
+        var chase = new EnemyChaseState<enemyStates>(Chase, _root, _obstacleAvoidance,Steerings.Persuit);
 
         idle.AddTransition(enemyStates.Patrol, patrol);
         idle.AddTransition(enemyStates.Seek,seek);
@@ -90,7 +99,6 @@ public class EnemyController : MonoBehaviour
             return false;
         }
 
-        _obstacleAvoidance.SetTarget(_actualTarget);
         onDetect?.Invoke(true);
         return true;
 
@@ -126,9 +134,9 @@ public class EnemyController : MonoBehaviour
     {
  
         Gizmos.color = Color.red;
-        if(_obstacleAvoidance != null)
+        if(_obstacleAvoidance != null && _obstacleAvoidance.ActualBehaviour != null)
         {
-            var dir = _obstacleAvoidance.ActualBehaviour.GetDir();
+            var dir = _obstacleAvoidance.ActualBehaviour.GetDir(); 
             Gizmos.DrawRay(transform.position, dir * 2);
         }
         Gizmos.DrawWireSphere(transform.position, obstacleAvoidanceSO.Radius);
