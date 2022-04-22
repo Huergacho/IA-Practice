@@ -24,13 +24,11 @@ public class EnemyController : MonoBehaviour
     private ObstacleAvoidance _obstacleAvoidance;
     [SerializeField] private ObstacleAvoidanceSO obstacleAvoidanceSO;
     private Dictionary<Steerings, ISteering> behaviours = new Dictionary<Steerings,ISteering>();
+    [SerializeField] private Transform[] wayPoints;
+    private Transform currWayPoint;
 
-
-    public event Action onIdle;
-    public event Action onPatrol;
     public event Action<Vector3> onRotate;
-    public event Action<Vector3> onSeek;
-    public event Action<Vector3> onChase;
+    public event Action<Vector3, float> onMove;
     public event Action<bool> onDetect;
     private void Awake()
     {
@@ -44,6 +42,7 @@ public class EnemyController : MonoBehaviour
     {
         _enemyModel.SuscribeEvents(this);
         _enemyView.SuscribeEvents(this);
+        currWayPoint = wayPoints[0];
         InitDesitionTree();
         InitFSM();
     }
@@ -57,9 +56,9 @@ public class EnemyController : MonoBehaviour
     private void InitFSM()
     {
         var idle = new EnemyIdleStates<enemyStates>(IdleCommand,_root);
-        var patrol = new EnemyPatrolState<enemyStates>(onPatrol, _root);
-        var seek = new EnemySeekState<enemyStates>(Seek, _root, _obstacleAvoidance,Steerings.Seek);
-        var chase = new EnemyChaseState<enemyStates>(Chase, _root, _obstacleAvoidance,Steerings.Persuit);
+        var patrol = new EnemyPatrolState<enemyStates>(PatrolCommand, _root);
+        var seek = new EnemySeekState<enemyStates>(SeekCommand, _root, _obstacleAvoidance,Steerings.Seek);
+        var chase = new EnemyChaseState<enemyStates>(ChaseCommand, _root, _obstacleAvoidance,Steerings.Persuit);
 
         idle.AddTransition(enemyStates.Patrol, patrol);
         idle.AddTransition(enemyStates.Seek,seek);
@@ -67,26 +66,29 @@ public class EnemyController : MonoBehaviour
 
         seek.AddTransition(enemyStates.Idle, idle);
         seek.AddTransition(enemyStates.Chase, chase);
+        seek.AddTransition(enemyStates.Patrol, patrol);
 
         chase.AddTransition(enemyStates.Idle, idle);
 
         patrol.AddTransition(enemyStates.Idle, idle);
+        patrol.AddTransition(enemyStates.Patrol, patrol);
         patrol.AddTransition(enemyStates.Seek, seek);
 
 
 
         _fsm = new FSM<enemyStates>(idle);
     }
-    private void InitDesitionTree()
-    {
+    private void InitDesitionTree() 
+    { 
 
         INode seek = new ActionNode(() => _fsm.Transition(enemyStates.Seek));
         INode chase = new ActionNode(() => _fsm.Transition(enemyStates.Chase));
         INode patrol = new ActionNode(() => _fsm.Transition(enemyStates.Patrol));
         INode idle = new ActionNode(() => _fsm.Transition(enemyStates.Idle));
 
-        INode QCanChase = new QuestionNode(CheckDistance, chase, seek);
-        INode QOnSight = new QuestionNode(DetectCommand, QCanChase, idle);
+        INode QCanChase = new QuestionNode(CheckChaseDistance, chase, _root);
+        INode QCanSeek = new QuestionNode(CheckSeekDistance, seek, patrol);
+        INode QOnSight = new QuestionNode(DetectCommand, QCanSeek, patrol);
         _root = QOnSight;
     }
 
@@ -105,25 +107,43 @@ public class EnemyController : MonoBehaviour
     }
     private void IdleCommand()
     {
-        onIdle?.Invoke();
+        onMove(transform.forward, 0);
     }
-    private bool CheckDistance()
+    private void PatrolCommand()
+    {
+        onMove?.Invoke(transform.forward, _enemyModel.Stats.PatrolSpeed);
+        Vector3 dir = currWayPoint.position - _enemyModel.transform.position;
+        dir = dir.normalized;
+        onRotate?.Invoke(_obstacleAvoidance.GetFixedDir(dir));
+        CheckWayPoint();
+    }
+    private bool CheckSeekDistance()
     {
         var distance = Vector3.Distance(transform.position, _actualTarget.transform.position);
-        if(distance > obstacleAvoidanceSO.SeekDistance)
+
+        if (distance > obstacleAvoidanceSO.SeekDistance)
         {
             return false;
         }
         return true;
     }
-    private void Seek()
+    private bool CheckChaseDistance()
     {
-        onSeek?.Invoke(transform.forward);
+        var distance = Vector3.Distance(transform.position, _actualTarget.transform.position);
+        if (distance > obstacleAvoidanceSO.ChaseDistance)
+        {
+            return false;
+        }
+        return true;
+    }
+    private void SeekCommand()
+    {
+        onMove.Invoke(transform.forward, _enemyModel.Stats.SeekSpeed);
         onRotate?.Invoke(_obstacleAvoidance.GetFixedDir());
     }
-    private void Chase()
+    private void ChaseCommand()
     {
-        onChase?.Invoke(transform.forward);
+        onMove?.Invoke(transform.forward,_enemyModel.Stats.ChaseSpeed);
         onRotate?.Invoke(_obstacleAvoidance.GetFixedDir());
     }
     private void Update()
@@ -143,4 +163,28 @@ public class EnemyController : MonoBehaviour
         Gizmos.DrawRay(transform.position, Quaternion.Euler(0, obstacleAvoidanceSO.Angle / 2, 0) * transform.forward * obstacleAvoidanceSO.Radius);
         Gizmos.DrawRay(transform.position, Quaternion.Euler(0, -obstacleAvoidanceSO.Angle / 2, 0) * transform.forward * obstacleAvoidanceSO.Radius);
     }
+    private void CheckWayPoint()
+    {
+        var posWay = currWayPoint.position;
+        posWay.y = transform.position.y;
+        var distance = Vector3.Distance(transform.position, posWay);
+        if (distance <= 0.25f)
+        {
+            for (int i = 0; i < wayPoints.Length; i++)
+            {
+                if (i == wayPoints.Length - 1)
+                {
+                    currWayPoint = wayPoints[0];
+                    break;
+                }
+                var actualWayPoint = wayPoints[i];
+                if (currWayPoint == actualWayPoint)
+                {
+                    currWayPoint = wayPoints[i + 1];
+                    break;
+                }
+            }
+        }
+    }
+   
 }

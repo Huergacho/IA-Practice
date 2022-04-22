@@ -8,24 +8,47 @@ public class LineOfSight : MonoBehaviour
 {
     [SerializeField] private Transform origin;
     [SerializeField] private LineOfSightProperties _properties;
+    int _lastFrame;
+    bool cache;
     public LineOfSightProperties Properties => _properties;
     public bool CanSeeTarget(Transform target)
     {
-        Vector3 diff = target.position - origin.position;
-        float distance = diff.magnitude;
+        if (_lastFrame == Time.frameCount)
+        {
+            //retorno el cache
+            return cache;
+        }
+        {
+            _lastFrame = Time.frameCount;
+            Vector3 diff = target.position - origin.position;
+            float distance = diff.magnitude;
 
-        if (distance > _properties.DetectionDistance) return false;
+            if (distance > _properties.DetectionDistance)
+            {
+                cache = false;
+                return false;
+            }
 
-        var angleToTarget = Vector3.Angle(diff, origin.forward);
-        if (angleToTarget > _properties.Aperture / 2) return false;
+            var angleToTarget = Vector3.Angle(diff, origin.forward);
+            if (angleToTarget > _properties.Aperture / 2)
+            {
+                cache = false;
+                return false;
+            }
 
-        if (Physics.Raycast(origin.position, diff.normalized, distance, _properties.ObstacleLayer)) {return false; }
-        return true;
+            if (Physics.Raycast(origin.position, diff.normalized, distance, _properties.ObstacleLayer)) 
+            {
+                cache = false;
+                return false; 
+            }
+            cache = true;
+            return true;
+        }
 
     }
     public List<Transform> CheckTargets()
     {
-        Collider[] colls = Physics.OverlapSphere(origin.position,_properties.DetectionDistance,_properties.TargetLayer);
+        Collider[] colls = Physics.OverlapSphere(origin.position, _properties.DetectionDistance, _properties.TargetLayer);
         List<Transform> targets = new List<Transform>();
         for (int i = 0; i < colls.Length; i++)
         {
@@ -50,7 +73,7 @@ public class LineOfSight : MonoBehaviour
     }
     public bool CanSeeManyTargets()
     {
-        if(CheckTargets().Count <= 0)
+        if (CheckTargets().Count <= 0)
         {
             return false;
         }
@@ -59,7 +82,7 @@ public class LineOfSight : MonoBehaviour
     public bool CheckForOneTarget()
     {
         var target = GetTheFirstTarget();
-        if(target == null)
+        if (target == null)
         {
             return false;
         }
@@ -71,7 +94,7 @@ public class LineOfSight : MonoBehaviour
     }
     public Transform GetTheFirstTarget()
     {
-        if(CheckTargets().Count <= 0)
+        if (CheckTargets().Count <= 0)
         {
             return null;
         }
@@ -79,10 +102,10 @@ public class LineOfSight : MonoBehaviour
     }
     public Transform GetTheLastTarget()
     {
-        if(CheckTargets().Count < 1)
+        if (CheckTargets().Count < 1)
         {
             return GetTheFirstTarget();
         }
-        return CheckTargets()[CheckTargets().Count -1];
+        return CheckTargets()[CheckTargets().Count - 1];
     }
 }

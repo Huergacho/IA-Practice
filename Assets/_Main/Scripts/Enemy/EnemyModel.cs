@@ -7,8 +7,9 @@ using UnityEngine;
 public class EnemyModel : MonoBehaviour
 {
     [SerializeField] private float rotationSpeed;
-    [SerializeField] private float seekSpeed;
-    [SerializeField] private float chaseSpeed;
+    [SerializeField] private EnemyStats _enemyStats;
+    public EnemyStats Stats => _enemyStats;
+
     private Rigidbody _rb;
     private void Start()
     {
@@ -19,23 +20,7 @@ public class EnemyModel : MonoBehaviour
         _rb.velocity = new Vector3(dir.x * desiredSpeed, _rb.velocity.y, dir.z * desiredSpeed);
 
     }
-    public void Chase(Vector3 dir)
-    {
-        Move(dir, chaseSpeed);
-    }
-    private void Patrol()
-    {
 
-    }
-    private void Seek(Vector3 dir)
-    {
-        Move(dir, seekSpeed);
-    }
-    private void Idle()
-    {
-        _rb.velocity = Vector3.zero;
-
-    }
     public void SmoothRotation(Vector3 dest)
     {
         var direction = (dest - transform.position);
@@ -50,14 +35,11 @@ public class EnemyModel : MonoBehaviour
         dir.y = 0;
         transform.forward = Vector3.Lerp(transform.forward, dir, 0.02f);
     }
+
     public void SuscribeEvents(EnemyController controller)
     {
-        controller.onChase += Chase;
-        controller.onIdle += Idle;
-        controller.onPatrol += Patrol;
-        //controller.onRotate += SmoothRotation;
         controller.onRotate += LookDir;
-        controller.onSeek += Seek;
+        controller.onMove += Move;
     }
 }
 

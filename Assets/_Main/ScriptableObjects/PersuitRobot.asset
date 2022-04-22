@@ -16,7 +16,7 @@ MonoBehaviour:
   _aperture: 297.34
   _obstacleLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 576
   _targetLayer:
     serializedVersion: 2
     m_Bits: 256

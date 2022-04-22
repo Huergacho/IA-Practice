@@ -18,7 +18,8 @@ MonoBehaviour:
   radius: 3
   angle: 300
   predictionTime: 2
-  avoidanceMult: 2
+  avoidanceMult: 3
   behaviourMult: 1
   chaseTime: 3
-  seekDistance: 10
+  seekDistance: 25
+  chaseDistance: 20

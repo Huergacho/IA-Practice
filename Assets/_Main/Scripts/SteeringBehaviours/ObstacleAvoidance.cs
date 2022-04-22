@@ -22,7 +22,6 @@ public class ObstacleAvoidance
     public void SetActualBehaviour(Steerings desiredBehaviour)
     {
         _actualBehaviour = _behaviourDict[desiredBehaviour];
-        Debug.Log(_actualBehaviour);
     }
     public ISteering GetBehaviour(Steerings behaviour)
     {
@@ -74,6 +73,11 @@ public class ObstacleAvoidance
     public Vector3 GetFixedDir()
     {
         var direction = (GetDir() * _properties.AvoidanceMult + _actualBehaviour.GetDir() * _properties.BehaviourMult).normalized;
+        return direction;
+    }
+    public Vector3 GetFixedDir(Vector3 dir)
+    {
+        var direction = (GetDir() * _properties.AvoidanceMult + dir * _properties.BehaviourMult).normalized;
         return direction;
     }
 
