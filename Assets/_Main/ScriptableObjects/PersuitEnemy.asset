@@ -9,17 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d1ad40ba4ab95e4b8ed1168d531297c, type: 3}
-  m_Name: EnemyOBS
+  m_Script: {fileID: 11500000, guid: 51048e8c222a90744bd96084cb5e903d, type: 3}
+  m_Name: PersuitEnemy
   m_EditorClassIdentifier: 
-  obstacleLayers:
-    serializedVersion: 2
-    m_Bits: 64
-  radius: 3
-  angle: 300
-  predictionTime: 2
-  avoidanceMult: 3
-  behaviourMult: 1
-  chaseTime: 3
-  seekDistance: 25
-  chaseDistance: 20
+  patrolSpeed: 5
+  seeksSpeed: 3
+  chaseSpeed: 7
+  maxLife: 20
+  shootCooldown: 1.5

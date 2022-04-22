@@ -8,12 +8,17 @@ public class EnemyModel : MonoBehaviour
 {
     [SerializeField] private float rotationSpeed;
     [SerializeField] private EnemyStats _enemyStats;
+    [SerializeField] private LazerBullet _lazerBullets;
+    [SerializeField] private Transform _firePoint;
     public EnemyStats Stats => _enemyStats;
+    private float currCooldown;
+
 
     private Rigidbody _rb;
     private void Start()
     {
         _rb = GetComponent<Rigidbody>();
+        currCooldown = 0;
     }
     private void Move(Vector3 dir, float desiredSpeed)
     {
@@ -30,6 +35,16 @@ public class EnemyModel : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, rotDestiny, rotationSpeed * Time.deltaTime);
         }
     }
+    public void Shoot()
+    {
+        currCooldown -= Time.deltaTime;
+        if(currCooldown < 0)
+        {
+            var obj = _lazerBullets;
+            Instantiate(obj, _firePoint.position, _firePoint.rotation);
+            currCooldown = _enemyStats.ShootCoooldown;
+        }
+    }
     public void LookDir(Vector3 dir)
     {
         dir.y = 0;
@@ -40,6 +55,10 @@ public class EnemyModel : MonoBehaviour
     {
         controller.onRotate += LookDir;
         controller.onMove += Move;
+    }
+    private void DestroyActions()
+    {
+        Destroy(gameObject);
     }
 }
 

@@ -8,7 +8,9 @@ public class LazerBullet : MonoBehaviour
 {
     [SerializeField] private float speed;
     [SerializeField] private LayerMask colLayers;
+    [SerializeField] private LayerMask enemyMask;
     [SerializeField] private float lifeTime;
+    [SerializeField] private int dmg;
     private float currTime;
     private Rigidbody _rb;
     private void Start()
@@ -33,9 +35,16 @@ public class LazerBullet : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if((collision.gameObject.layer & (1 << colLayers)) != 0)
+        if((enemyMask & 1 << collision.gameObject.layer) == 1 << collision.gameObject.layer)
         {
-                Destroy(gameObject);
+            var life = collision.gameObject.GetComponent<LifeController>();
+            life.TakeDamage(dmg);
+            life.CheckCurrentLife();
+            Destroy(gameObject);
+        }
+        else if((colLayers & 1 << collision.gameObject.layer) == 1 << collision.gameObject.layer)
+        {
+            Destroy(gameObject);
         }
     }
 }

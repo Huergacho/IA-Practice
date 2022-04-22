@@ -14,4 +14,10 @@ public class EnemyStats : ScriptableObject
 
     [SerializeField] private float chaseSpeed;
     public float ChaseSpeed => chaseSpeed;
+
+    [SerializeField] private float maxLife;
+    public float MaxLife => maxLife;
+
+    [SerializeField] private float shootCooldown;
+    public float ShootCoooldown => shootCooldown;
 }

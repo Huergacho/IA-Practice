@@ -14,5 +14,8 @@ public class PlayerStats : ScriptableObject
 
     [SerializeField] private float shootCooldown;
     public float ShootCooldown => shootCooldown;
+
+    [SerializeField] private float maxLife;
+    public float MaxLife => maxLife;
 }
 

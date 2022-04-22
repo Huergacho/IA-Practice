@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 class QuestionNode : INode
 {
     Func<bool> _onExecute;
-    private bool _question;
     private INode _trueNode;
     private INode _falseNode;
     public QuestionNode(Func<bool> question, INode trueNode, INode falseNode)

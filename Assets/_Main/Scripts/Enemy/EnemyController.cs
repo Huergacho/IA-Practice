@@ -12,7 +12,8 @@ public class EnemyController : MonoBehaviour
         Idle,
         Patrol,
         Seek,
-        Chase
+        Chase,
+        Shoot
     }
     private EnemyModel _enemyModel;
     private EnemyView _enemyView;
@@ -30,12 +31,16 @@ public class EnemyController : MonoBehaviour
     public event Action<Vector3> onRotate;
     public event Action<Vector3, float> onMove;
     public event Action<bool> onDetect;
+    public event Action onDie;
+    private LifeController lifeController;
     private void Awake()
     {
         _enemyModel = GetComponent<EnemyModel>();
         _enemyView = GetComponent<EnemyView>();
         _lineOfSight = GetComponent<LineOfSight>();
         InitBehaviours();
+        lifeController = GetComponent<LifeController>();
+        lifeController.actionToDo = DieActions;
         _obstacleAvoidance = new ObstacleAvoidance(transform, _actualTarget,obstacleAvoidanceSO,behaviours);
     }
     private void Start()
@@ -58,21 +63,29 @@ public class EnemyController : MonoBehaviour
         var idle = new EnemyIdleStates<enemyStates>(IdleCommand,_root);
         var patrol = new EnemyPatrolState<enemyStates>(PatrolCommand, _root);
         var seek = new EnemySeekState<enemyStates>(SeekCommand, _root, _obstacleAvoidance,Steerings.Seek);
-        var chase = new EnemyChaseState<enemyStates>(ChaseCommand, _root, _obstacleAvoidance,Steerings.Persuit);
+      //  var chase = new EnemyChaseState<enemyStates>(ChaseCommand, _root, _obstacleAvoidance,Steerings.Persuit);
+        var shoot = new EnemyShootState<enemyStates>(Shoot, _root,_obstacleAvoidance, Steerings.Seek);
 
         idle.AddTransition(enemyStates.Patrol, patrol);
         idle.AddTransition(enemyStates.Seek,seek);
-        idle.AddTransition(enemyStates.Chase, chase);
+        // idle.AddTransition(enemyStates.Chase, chase);
 
         seek.AddTransition(enemyStates.Idle, idle);
-        seek.AddTransition(enemyStates.Chase, chase);
+     //   seek.AddTransition(enemyStates.Chase, chase);
         seek.AddTransition(enemyStates.Patrol, patrol);
+        seek.AddTransition(enemyStates.Shoot, shoot);
 
-        chase.AddTransition(enemyStates.Idle, idle);
+        //chase.AddTransition(enemyStates.Idle, idle);
+        //chase.AddTransition(enemyStates.Shoot, shoot);
+        //chase.AddTransition(enemyStates.Seek, seek);
 
         patrol.AddTransition(enemyStates.Idle, idle);
         patrol.AddTransition(enemyStates.Patrol, patrol);
         patrol.AddTransition(enemyStates.Seek, seek);
+       // patrol.AddTransition(enemyStates.Chase, chase);
+
+        shoot.AddTransition(enemyStates.Seek,seek);
+       // shoot.AddTransition(enemyStates.Chase, chase);
 
 
 
@@ -82,14 +95,20 @@ public class EnemyController : MonoBehaviour
     { 
 
         INode seek = new ActionNode(() => _fsm.Transition(enemyStates.Seek));
-        INode chase = new ActionNode(() => _fsm.Transition(enemyStates.Chase));
+       // INode chase = new ActionNode(() => _fsm.Transition(enemyStates.Chase));
         INode patrol = new ActionNode(() => _fsm.Transition(enemyStates.Patrol));
         INode idle = new ActionNode(() => _fsm.Transition(enemyStates.Idle));
+        INode shoot = new ActionNode(() => _fsm.Transition(enemyStates.Shoot));
 
-        INode QCanChase = new QuestionNode(CheckChaseDistance, chase, _root);
-        INode QCanSeek = new QuestionNode(CheckSeekDistance, seek, patrol);
+        //INode QCanShoot = new QuestionNode(CheckChaseDistance,shoot, chase);
+        //INode QCanSeek = new QuestionNode(CheckShootDistance, seek, QCanShoot);
+
+        //INode QOnSight = new QuestionNode(DetectCommand, QCanSeek, patrol);
+        //INode QCanShoot = new QuestionNode();
+        INode QCanSeek = new QuestionNode(CheckForShooting, shoot, seek);
         INode QOnSight = new QuestionNode(DetectCommand, QCanSeek, patrol);
-        _root = QOnSight;
+        INode QPlayerAlive = new QuestionNode(CheckForPlayer, QOnSight, patrol);
+        _root = QPlayerAlive;
     }
 
     private bool DetectCommand()
@@ -105,6 +124,10 @@ public class EnemyController : MonoBehaviour
         return true;
 
     }
+    private bool CheckForPlayer()
+    {
+        return GameManager.Instance.IsPlayerAlive;
+    }
     private void IdleCommand()
     {
         onMove(transform.forward, 0);
@@ -117,38 +140,33 @@ public class EnemyController : MonoBehaviour
         onRotate?.Invoke(_obstacleAvoidance.GetFixedDir(dir));
         CheckWayPoint();
     }
-    private bool CheckSeekDistance()
-    {
-        var distance = Vector3.Distance(transform.position, _actualTarget.transform.position);
 
-        if (distance > obstacleAvoidanceSO.SeekDistance)
-        {
-            return false;
-        }
-        return true;
-    }
-    private bool CheckChaseDistance()
+    private bool CheckForShooting()
     {
         var distance = Vector3.Distance(transform.position, _actualTarget.transform.position);
-        if (distance > obstacleAvoidanceSO.ChaseDistance)
+        if(distance > obstacleAvoidanceSO.ShootDistance)
         {
             return false;
         }
+
         return true;
     }
     private void SeekCommand()
     {
         onMove.Invoke(transform.forward, _enemyModel.Stats.SeekSpeed);
-        onRotate?.Invoke(_obstacleAvoidance.GetFixedDir());
+        onRotate?.Invoke(_obstacleAvoidance.GetFixedDir()); 
     }
     private void ChaseCommand()
     {
+        print("Entre En Chase");
         onMove?.Invoke(transform.forward,_enemyModel.Stats.ChaseSpeed);
         onRotate?.Invoke(_obstacleAvoidance.GetFixedDir());
     }
-    private void Update()
+    private void Shoot()
     {
-        _fsm.UpdateState();
+        _enemyModel.Shoot();
+        onMove.Invoke(transform.forward, _enemyModel.Stats.SeekSpeed);
+        onRotate?.Invoke(_obstacleAvoidance.GetFixedDir());
     }
     public void OnDrawGizmosSelected()
     {
@@ -187,4 +205,12 @@ public class EnemyController : MonoBehaviour
         }
     }
    
+    private void DieActions()
+    {
+        Destroy(gameObject);
+    }
+    private void Update()
+    {
+        _fsm.UpdateState();
+    }
 }

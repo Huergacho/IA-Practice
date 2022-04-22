@@ -19,7 +19,8 @@ public class PlayerController : MonoBehaviour
     public event Action<Vector2> _onWalk;
     public event Action<Vector2> _onRun;
     public event Action _onShoot;
-
+    public event Action _onDie;
+    private LifeController lifeController;
     private void Awake()
     {
         _playerInputs = GetComponent<PlayerInputs>();
@@ -29,6 +30,9 @@ public class PlayerController : MonoBehaviour
     }
     private void Start()
     {
+        GameManager.Instance.AssignPlayer(this);
+        lifeController = GetComponent<LifeController>();
+        lifeController.actionToDo = DieActions;
         _playerModel.SuscribeEvents(this);
         _playerView.SuscribeEvents(this);
 
@@ -73,6 +77,10 @@ public class PlayerController : MonoBehaviour
     private void ModelShoot()
     {
         _playerModel.Shoot();
+    }
+    private void DieActions()
+    {
+        _onDie?.Invoke();
     }
 
 }

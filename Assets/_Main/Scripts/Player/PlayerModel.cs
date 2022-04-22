@@ -5,13 +5,13 @@ using UnityEngine;
 public class PlayerModel : MonoBehaviour,IVel
 {
     [SerializeField] private PlayerStats _stats;
+    public PlayerStats Stats => _stats;
     [SerializeField] private float currentSpeed;
     [SerializeField] private float currentTime;
     [SerializeField] private LazerBullet bulletPrefab;
     [SerializeField] private Transform firePoint;
     private Camera _camera;
     private Rigidbody _rb;
-
     public float GetVel => _rb.velocity.magnitude;
 
     public Vector3 GetFoward => _rb.velocity.normalized;
@@ -23,7 +23,10 @@ public class PlayerModel : MonoBehaviour,IVel
         _camera = Camera.main;
         _rb = GetComponent<Rigidbody>();
     }
-
+    private void Start()
+    {
+        
+    }
     #endregion
 
     #region Movement
@@ -100,6 +103,11 @@ public class PlayerModel : MonoBehaviour,IVel
         controller._onWalk += Walk;
         controller._onIdle += Idle;
         controller._onRun += Run;
+        controller._onDie += DestroyActions;
         //controller._onShoot += Shoot;
+    }
+    public void DestroyActions()
+    {
+        GameManager.Instance.PlayerIsDead();
     }
 }
