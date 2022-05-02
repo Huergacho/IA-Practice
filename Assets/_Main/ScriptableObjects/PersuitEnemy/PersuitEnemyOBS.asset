@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2d1ad40ba4ab95e4b8ed1168d531297c, type: 3}
-  m_Name: EnemyOBS
+  m_Name: PersuitEnemyOBS
   m_EditorClassIdentifier: 
   obstacleLayers:
     serializedVersion: 2
@@ -22,5 +22,5 @@ MonoBehaviour:
   behaviourMult: 1
   chaseTime: 3
   seekDistance: 20
-  chaseDistance: 8
-  shootDistance: 18
+  chaseDistance: 20
+  shootDistance: 30

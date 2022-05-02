@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-public class EnemyChaseState<T> : State<T>
+class SafeEnemyEvadeState<T> : State<T>
 {
-    private Action<Vector3,float,Vector3> _onChase;
+    private Action<Vector3, float, Vector3> _onEvade;
     private Func<bool> _isOnSight;
     private INode _root;
     private ObstacleAvoidance _obs;
@@ -14,9 +14,9 @@ public class EnemyChaseState<T> : State<T>
     private Transform _self;
     private float _desiredSpeed;
     private Func<bool> _canShoot;
-    public EnemyChaseState(Action<Vector3, float, Vector3> onChase, Func<bool> canShoot, INode root, ObstacleAvoidance obs, Steerings obsEnum, Func<bool> isOnSight,Transform self ,float desiredSpeed)
+    public SafeEnemyEvadeState(Action<Vector3, float, Vector3> onEvade, Func<bool> canShoot, INode root, ObstacleAvoidance obs, Steerings obsEnum, Func<bool> isOnSight, Transform self, float desiredSpeed)
     {
-        _onChase = onChase;
+        _onEvade = onEvade;
         _root = root;
         _obs = obs;
         _obsEnum = obsEnum;
@@ -43,7 +43,7 @@ public class EnemyChaseState<T> : State<T>
             _root.Execute();
             return;
         }
-        _onChase?.Invoke(_self.forward,_desiredSpeed, _obs.GetFixedDir());
+        _onEvade?.Invoke(_self.forward, _desiredSpeed, _obs.GetFixedDir());
     }
 
 }

@@ -224,6 +224,7 @@ GameObject:
   - component: {fileID: 3444765822074933158}
   - component: {fileID: 3444765822074933159}
   - component: {fileID: 1083257381845060818}
+  - component: {fileID: 274358980875606958}
   m_Layer: 7
   m_Name: persuit robot
   m_TagString: Untagged
@@ -278,8 +279,8 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.9810158
-  m_Center: {x: -0.13217193, y: 1.0546563, z: -0.14199153}
+  m_Radius: 1.9841368
+  m_Center: {x: 0.87094903, y: 1.0546563, z: -0.14199138}
 --- !u!114 &3444765822074933155
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -329,8 +330,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 5
   _enemyStats: {fileID: 11400000, guid: a7eb023099cc9e540abf3942ffd9d011, type: 2}
-  _lazerBullets: {fileID: 1040605941909875675, guid: c7237e5e3471740429e88248cebb847b, type: 3}
   _firePoint: {fileID: 8397578590604342300}
+  _gun: {fileID: 274358980875606958}
 --- !u!95 &3444765822074933158
 Animator:
   serializedVersion: 3
@@ -375,6 +376,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxLife: 20
+--- !u!114 &274358980875606958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3444765822074933156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01b74455e79d1dd449a15a0492b90d08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _bulletStats: {fileID: 11400000, guid: 67026c69e36587f4ba85fca2b6370d96, type: 2}
+  contactLayer:
+    serializedVersion: 2
+    m_Bits: 833
+  shootCooldown: 0.5
+  bulletTrail: {fileID: 3801340997333012015, guid: 03a9c3cd2efac9d449d34c38cc7517f2, type: 3}
+  bulletExplodeParticles: {fileID: 3168718373101738633, guid: 82edd6d6ed2e2474199ba391717e2753, type: 3}
 --- !u!1 &3444765822141184274
 GameObject:
   m_ObjectHideFlags: 0

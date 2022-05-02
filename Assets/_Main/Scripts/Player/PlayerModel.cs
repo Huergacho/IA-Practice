@@ -5,11 +5,9 @@ using UnityEngine;
 public class PlayerModel : MonoBehaviour,IVel
 {
     [SerializeField] private PlayerStats _stats;
+    [SerializeField] private LazerGun _gun;
+    [SerializeField] private Transform _firePoint;
     public PlayerStats Stats => _stats;
-    [SerializeField] private float currentSpeed;
-    [SerializeField] private float currentTime;
-    [SerializeField] private LazerBullet bulletPrefab;
-    [SerializeField] private Transform firePoint;
     private Camera _camera;
     private Rigidbody _rb;
     public float GetVel => _rb.velocity.magnitude;
@@ -21,42 +19,19 @@ public class PlayerModel : MonoBehaviour,IVel
     private void Awake()
     {
         _camera = Camera.main;
+        _gun = GetComponent<LazerGun>();
         _rb = GetComponent<Rigidbody>();
     }
     private void Start()
     {
-        
     }
     #endregion
 
     #region Movement
-    public void Move(Vector2 dir)
+    public void Move(Vector2 dir, float desiredSpeed)
     {
-        _rb.velocity = new Vector3(currentSpeed * dir.normalized.x, _rb.velocity.y, currentSpeed * dir.normalized.y);
+        _rb.velocity = new Vector3(desiredSpeed * dir.normalized.x, _rb.velocity.y, desiredSpeed * dir.normalized.y);
         SmoothRotation(GetMousePosition());
-    }
-
-    public void Idle()
-    {
-        _rb.velocity = Vector3.zero;
-        SmoothRotation(GetMousePosition());
-    }
-
-    private void Walk(Vector2 dir)
-    {
-        ModifySpeed(_stats.WalkSpeed);
-        Move(dir);
-    }
-
-    private void Run(Vector2 dir)
-    {
-        ModifySpeed(_stats.RunSpeed);
-        Move(dir);
-    }
-    
-    private void ModifySpeed(float desiredSpeed)
-    {
-        currentSpeed = Mathf.SmoothStep(currentSpeed, desiredSpeed, Time.deltaTime * 10);
     }
     #endregion
 
@@ -94,17 +69,15 @@ public class PlayerModel : MonoBehaviour,IVel
     }
     public void Shoot()
     {
-        var bulletClone = bulletPrefab;
-        Instantiate(bulletClone, firePoint.position, firePoint.rotation);
+        _gun.Shoot(_firePoint.position,(GetMousePosition() - new Vector3(_firePoint.position.x,0,_firePoint.position.z)).normalized);
     }
     #endregion
     public void SuscribeEvents(PlayerController controller)
     {
-        controller._onWalk += Walk;
-        controller._onIdle += Idle;
-        controller._onRun += Run;
+
         controller._onDie += DestroyActions;
-        //controller._onShoot += Shoot;
+        controller._onShoot += Shoot;
+        controller._onMove += Move;
     }
     public void DestroyActions()
     {

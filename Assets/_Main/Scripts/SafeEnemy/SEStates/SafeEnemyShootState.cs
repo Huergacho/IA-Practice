@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-public class EnemyShootState<T> : State<T>
+public class SafeEnemyShootState<T> :State<T>
 {
     private Action _onShoot;
     private Action<Vector3, float, Vector3> _onMove;
@@ -15,7 +15,7 @@ public class EnemyShootState<T> : State<T>
     private Func<bool> _onCheckDistance;
     Transform _self;
     float _desiredSpeed;
-    public EnemyShootState(Action onShoot, Action<Vector3, float, Vector3> onMove, INode root,ObstacleAvoidance obstacleAvoidance ,Steerings steering, Func<bool> onDetect,Func<bool> onCheckDistance, Transform self, float desiredSpeed)
+    public SafeEnemyShootState(Action onShoot, Action<Vector3, float, Vector3> onMove, INode root, ObstacleAvoidance obstacleAvoidance, Steerings steering, Func<bool> onDetect, Func<bool> onCheckDistance, Transform self, float desiredSpeed)
     {
         _onShoot = onShoot;
         _root = root;
@@ -47,5 +47,5 @@ public class EnemyShootState<T> : State<T>
         _onMove.Invoke(_self.forward, _desiredSpeed, _obstacleAvoidance.GetFixedDir());
     }
 
-}
 
+}

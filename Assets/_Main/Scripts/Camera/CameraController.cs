@@ -11,6 +11,9 @@ class CameraController : MonoBehaviour
     [SerializeField] private float smoothnessMovement;
     [SerializeField] private LayerMask obstacles;
     [SerializeField] private List<GameObject> obstaclesInSight;
+    private void Start()
+    {
+    }
     private void Update()
     {
         Move();

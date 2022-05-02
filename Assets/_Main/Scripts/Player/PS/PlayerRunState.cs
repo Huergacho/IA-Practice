@@ -6,15 +6,18 @@ class PlayerRunState<T> : State<T>
 {
     T _walkInput;
     Action _onShoot;
-    Action<Vector2> _onRun;
+    Action<Vector2,float> _onRun;
     PlayerInputs _playerInputs;
-
-    public PlayerRunState(T walkInput, Action<Vector2> onRun, Action onShoot, PlayerInputs playerInputs)
+    private float _desiredSpeed;
+    Action _animation;
+    public PlayerRunState(T walkInput, Action<Vector2, float> onRun, Action onShoot, PlayerInputs playerInputs, float desiredSpeed, Action animation)
     {
         _walkInput = walkInput;
         _onRun = onRun;
         _onShoot = onShoot;
         _playerInputs = playerInputs;
+        _desiredSpeed = desiredSpeed;
+        _animation = animation;
     }
     public override void Execute()
     {
@@ -28,7 +31,8 @@ class PlayerRunState<T> : State<T>
         {
             _onShoot?.Invoke();
         }
-        _onRun?.Invoke(new Vector2(_playerInputs.GetH, _playerInputs.GetV));
+        _onRun?.Invoke(new Vector2(_playerInputs.GetH, _playerInputs.GetV), _desiredSpeed);
+        _animation?.Invoke();
     }
 
 }

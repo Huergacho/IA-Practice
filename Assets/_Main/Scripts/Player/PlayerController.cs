@@ -16,10 +16,10 @@ public class PlayerController : MonoBehaviour
     PlayerView _playerView;
     FSM<PlayerHelper> _fsm;
     public event Action _onIdle;
-    public event Action<Vector2> _onWalk;
-    public event Action<Vector2> _onRun;
+    public event Action<Vector2,float> _onMove;
     public event Action _onShoot;
     public event Action _onDie;
+
     private LifeController lifeController;
     private void Awake()
     {
@@ -30,20 +30,19 @@ public class PlayerController : MonoBehaviour
     }
     private void Start()
     {
-        GameManager.Instance.AssignPlayer(this);
         lifeController = GetComponent<LifeController>();
         lifeController.actionToDo = DieActions;
         _playerModel.SuscribeEvents(this);
         _playerView.SuscribeEvents(this);
-
     }
     private void InitFSM()
     {
-        var idle = new PlayerIdleState<PlayerHelper>(PlayerHelper.Walk, OnIdleCommand,ShootCommand, _playerInputs);
-        var walk = new PlayerWalkState<PlayerHelper>(PlayerHelper.Idle, PlayerHelper.Run, OnWalkCommand,ShootCommand, _playerInputs);
-        var run = new PlayerRunState<PlayerHelper>(PlayerHelper.Walk, OnRunCommand,ShootCommand, _playerInputs);
+        var idle = new PlayerIdleState<PlayerHelper>(PlayerHelper.Walk, MovementCommand, ShootCommand, _playerInputs,_playerView.Idle);
+        var walk = new PlayerWalkState<PlayerHelper>(PlayerHelper.Idle, PlayerHelper.Run, MovementCommand, ShootCommand, _playerInputs, _playerModel.Stats.WalkSpeed,_playerView.Walk);
+        var run = new PlayerRunState<PlayerHelper>(PlayerHelper.Walk, MovementCommand, ShootCommand, _playerInputs, _playerModel.Stats.RunSpeed,_playerView.Run);
 
         idle.AddTransition(PlayerHelper.Walk, walk);
+        idle.AddTransition(PlayerHelper.Run, run);
 
         walk.AddTransition(PlayerHelper.Idle, idle);
         walk.AddTransition(PlayerHelper.Run, run);
@@ -57,26 +56,14 @@ public class PlayerController : MonoBehaviour
         _fsm.UpdateState();
 
     }
-    private void OnWalkCommand(Vector2 dir)
+
+    private void MovementCommand(Vector2 dir, float desiredSpeed)
     {
-        _onWalk?.Invoke(dir);
-      
-    }
-    private void OnRunCommand(Vector2 dir)
-    {
-        _onRun?.Invoke(dir);
-    }
-    private void OnIdleCommand()
-    {
-        _onIdle?.Invoke();
+        _onMove?.Invoke(dir, desiredSpeed);
     }
     private void ShootCommand()
     {
         _onShoot?.Invoke();
-    }
-    private void ModelShoot()
-    {
-        _playerModel.Shoot();
     }
     private void DieActions()
     {

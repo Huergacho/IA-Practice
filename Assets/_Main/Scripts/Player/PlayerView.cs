@@ -6,7 +6,6 @@ public class PlayerView : MonoBehaviour
     private Animator _animator;
     private float speedValue;
     [SerializeField] private float transitionTime;
-    [SerializeField] private GameObject Lazer;
     private void Awake()
     {
         _animator = GetComponent<Animator>();
@@ -16,26 +15,23 @@ public class PlayerView : MonoBehaviour
     }
     public void SuscribeEvents(PlayerController controller)
     {
-        controller._onIdle += Idle;
-        controller._onWalk += Walk;
-        controller._onRun += Run;
         controller._onShoot += Shoot;
     }
-    void Walk(Vector2 aux)
+    public void Walk()
     {
         // Si quisiera tirarle un movimiento omnidireccional de caminata puedo sacar la direccion hacia la que esta caminando por aca :D
 
             _animator.SetFloat("Speed",Mathf.SmoothStep(_animator.GetFloat("Speed"),0.5f,Time.deltaTime * transitionTime));
 
     }
-    void Run(Vector2 aux)
+    public void Run()
     {
 
         //_animator.SetFloat("Speed", 1);
 
             _animator.SetFloat("Speed", Mathf.SmoothStep(_animator.GetFloat("Speed"), 1f, Time.deltaTime * transitionTime));
     }
-    void Idle()
+   public void Idle()
     {
         //_animator.SetFloat("Speed", 0);
         if(_animator.GetFloat("Speed") < 0.1f)

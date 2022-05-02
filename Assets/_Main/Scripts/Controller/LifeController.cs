@@ -9,6 +9,10 @@ public class LifeController : MonoBehaviour
     private float _currentLife;
     [SerializeField]private float _maxLife;
     public Action actionToDo;
+    private void Start()
+    {
+        _currentLife = _maxLife;
+    }
     public void TakeDamage(float damage)
     {
         _currentLife -= damage;

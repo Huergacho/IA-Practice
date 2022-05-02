@@ -14,4 +14,9 @@ class PlayerShootState<T> : State<T>
         _onShoot = oNShoot;
         _playerInputs = playerInputs;
     }
+    public override void Execute()
+    {
+
+       
+    }
 }
