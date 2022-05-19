@@ -9,6 +9,7 @@ public class LifeController : MonoBehaviour
     private float _currentLife;
     [SerializeField]private float _maxLife;
     public Action actionToDo;
+    [SerializeField] private bool isInmortal;
     private void Start()
     {
         _currentLife = _maxLife;
@@ -21,7 +22,10 @@ public class LifeController : MonoBehaviour
     {
         if(_currentLife <= 0)
         {
-            actionToDo?.Invoke();
+            if (!isInmortal)
+            {
+                actionToDo?.Invoke();
+            }
         }
     }
 

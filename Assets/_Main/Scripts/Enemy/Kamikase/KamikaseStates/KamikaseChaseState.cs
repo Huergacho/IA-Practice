@@ -4,28 +4,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-public class EnemyChaseState<T> : State<T>
+public class KamikaseChaseState<T> : State<T>
 {
-    private Action<Vector3,float> _onChase;
+    private Action<Vector3, float> _onChase;
+    private Action<Vector3> _onRotate;
+    private Func<bool> _canExplode;
     private Func<bool> _isOnSight;
     private INode _root;
     private ObstacleAvoidance _obs;
     private Steerings _obsEnum;
     private Transform _self;
     private float _desiredSpeed;
-    private Func<bool> _canShoot;
-    private Action<Vector3> _onRotate;
-    public EnemyChaseState(Action<Vector3, float> onChase,Action<Vector3> onRotate, Func<bool> canShoot, INode root, ObstacleAvoidance obs, Steerings obsEnum, Func<bool> isOnSight,Transform self ,float desiredSpeed)
+    public KamikaseChaseState(Action<Vector3, float> onChase,Action<Vector3> onRotate,Func<bool> canExplode, INode root, ObstacleAvoidance obs, Steerings obsEnum, Func<bool> isOnSight, Transform self, float desiredSpeed)
     {
         _onChase = onChase;
+        _onRotate = onRotate;
         _root = root;
         _obs = obs;
         _obsEnum = obsEnum;
         _isOnSight = isOnSight;
         _self = self;
         _desiredSpeed = desiredSpeed;
-        _canShoot = canShoot;
-        _onRotate = onRotate;
+        _canExplode = canExplode;
     }
 
     public override void Awake()
@@ -40,13 +40,14 @@ public class EnemyChaseState<T> : State<T>
             _root.Execute();
             return;
         }
-        if (_isOnSight() && _canShoot())
+        if (_canExplode())
         {
             _root.Execute();
             return;
         }
-        _onChase?.Invoke(_self.forward,_desiredSpeed);
+        _onChase?.Invoke(_self.forward, _desiredSpeed);
         _onRotate?.Invoke(_obs.GetFixedDir());
     }
 
 }
+

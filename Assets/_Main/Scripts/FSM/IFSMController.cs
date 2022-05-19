@@ -6,7 +6,4 @@ using System.Threading.Tasks;
 
 public interface IFSMController
 {
-    void InitBehaviours();
-    void InitFSM();
-    void InitDesitionTree();
 }

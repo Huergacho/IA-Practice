@@ -35,4 +35,7 @@ public class ObstacleAvoidanceSO : ScriptableObject
 
     [SerializeField] private float shootDistance;
     public float ShootDistance => shootDistance;
+
+    [SerializeField] private float explodeDistance;
+    public float ExplodeDistance => explodeDistance;
 }

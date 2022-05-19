@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d1ad40ba4ab95e4b8ed1168d531297c, type: 3}
+  m_Name: Monitor OBS
+  m_EditorClassIdentifier: 
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  radius: 2.85
+  angle: 1.2
+  predictionTime: 3.09
+  avoidanceMult: 2
+  behaviourMult: 1
+  chaseTime: 2
+  seekDistance: 0
+  chaseDistance: 19.45
+  shootDistance: 19.45
+  explodeDistance: 0

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 public enum Steerings
 {
     Evade,
-    Persuit,
+    Chase,
     Seek,
     Flee
 }

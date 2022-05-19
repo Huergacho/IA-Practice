@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using UnityEngine;
 public class EnemyPatrolState<T> : State<T>
 {
-    private Action<Vector3,float,Vector3> _patrol;
+    private Action<Vector3, float> _patrol;
+    Action<Vector3> _onRotate;
     private INode _root;
     private Steerings _obsEnum;
     private ObstacleAvoidance _obs;
@@ -16,7 +17,7 @@ public class EnemyPatrolState<T> : State<T>
     private Transform _self;
     private int currentWayPointIndex;
     private float _desiredSpeed;
-    public EnemyPatrolState(Action<Vector3, float, Vector3> patrol,Transform self, INode root, Transform[] wayPoints, Steerings obsEnum, 
+    public EnemyPatrolState(Action<Vector3, float> patrol,Action<Vector3>onRotate,Transform self, INode root, Transform[] wayPoints, Steerings obsEnum, 
         ObstacleAvoidance obs, Func<bool> isOnSight, float desiredSpeed)
     {
         _patrol = patrol;
@@ -28,6 +29,7 @@ public class EnemyPatrolState<T> : State<T>
         _isOnSight = isOnSight;
         _desiredSpeed = desiredSpeed;
         currentWayPointIndex = 0;
+        _onRotate = onRotate;
     }
     public override void Awake()
     {
@@ -42,7 +44,8 @@ public class EnemyPatrolState<T> : State<T>
             return;
         }
         CheckWayPoint();
-        _patrol?.Invoke((currWayPoint.position - _self.position).normalized, _desiredSpeed, (currWayPoint.position - _self.position).normalized);
+        _patrol?.Invoke((currWayPoint.position - _self.position).normalized, _desiredSpeed);
+        _onRotate?.Invoke((currWayPoint.position - _self.position).normalized);
         
     }
     private void CheckWayPoint()
