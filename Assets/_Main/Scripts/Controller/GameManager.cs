@@ -11,8 +11,9 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     [SerializeField]private int itemsPicked;
     [SerializeField] private int maxItems;
-    [SerializeField] private PlayerController _player;
+    [SerializeField] private PlayerModel _playerModel;
     [SerializeField] private TextMeshProUGUI tmPro;
+    public PlayerModel PlayerModel => _playerModel;
     private bool isPlayerAlive;
     public bool IsPlayerAlive => isPlayerAlive;
     private void Awake()
@@ -61,9 +62,9 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene(0);
     }
-    public void AssignPlayer(PlayerController player)
+    public void AssignPlayer(PlayerModel player)
     {
-        _player = player;
+        _playerModel = player;
     }
     private void RestartGame()
     {

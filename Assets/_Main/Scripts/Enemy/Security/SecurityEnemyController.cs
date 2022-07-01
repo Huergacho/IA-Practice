@@ -49,7 +49,7 @@ public class SecurityEnemyController : BaseEnemyController
     }
     protected override void InitFSM()
     {
-        var patrol = new EnemyPatrolState<enemyStates>(MovementCommand, RotateCommand, transform,_root,wayPoints,Steerings.Seek,_obstacleAvoidance,DetectCommand,_enemyModel.Stats.PatrolSpeed);
+        var patrol = new EnemyPatrolState<enemyStates>(MovementCommand, RotateCommand,HasTakenDamage, transform,_root,wayPoints,Steerings.Seek,_obstacleAvoidance,DetectCommand,_enemyModel.Stats.PatrolSpeed);
         var chase = new EnemyChaseState<enemyStates>(MovementCommand,RotateCommand,CheckForShooting, _root, _obstacleAvoidance,Steerings.Chase, DetectCommand,transform,_enemyModel.Stats.ChaseSpeed);
         var shoot = new EnemyShootState<enemyStates>(Shoot, MovementCommand, RotateCommand, _root,_obstacleAvoidance, Steerings.Seek,DetectCommand,CheckForShooting,transform,_enemyModel.Stats.SeekSpeed);
 
@@ -82,7 +82,8 @@ public class SecurityEnemyController : BaseEnemyController
 
         INode QCanShoot = new QuestionNode(CheckForShooting, shoot, chase);
         INode QOnSight = new QuestionNode(DetectCommand, QCanShoot, patrol);
-        INode QPlayerAlive = new QuestionNode(CheckForPlayer, QOnSight, patrol);
+        INode QTakeDamage = new QuestionNode(HasTakenDamage, QCanShoot, QOnSight);
+        INode QPlayerAlive = new QuestionNode(CheckForPlayer, QTakeDamage, patrol);
         _root = QPlayerAlive;
     }
 

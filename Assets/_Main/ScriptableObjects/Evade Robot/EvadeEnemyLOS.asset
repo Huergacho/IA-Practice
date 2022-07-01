@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 592e5a96891db284f9c15e49cd57803c, type: 3}
   m_Name: EvadeEnemyLOS
   m_EditorClassIdentifier: 
-  _detectionDistance: 0
-  _aperture: 0
+  _detectionDistance: 23
+  _aperture: 180
   _obstacleLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 576
   _targetLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256

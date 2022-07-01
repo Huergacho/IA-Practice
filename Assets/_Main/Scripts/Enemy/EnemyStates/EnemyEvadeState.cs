@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-class SafeEnemyEvadeState<T> : State<T>
+public class EnemyEvadeState<T> : State<T>
 {
-    private Action<Vector3, float, Vector3> _onEvade;
+    private Action<Vector3, float> _onEvade;
     private Func<bool> _isOnSight;
     private INode _root;
     private ObstacleAvoidance _obs;
@@ -14,7 +14,8 @@ class SafeEnemyEvadeState<T> : State<T>
     private Transform _self;
     private float _desiredSpeed;
     private Func<bool> _canShoot;
-    public SafeEnemyEvadeState(Action<Vector3, float, Vector3> onEvade, Func<bool> canShoot, INode root, ObstacleAvoidance obs, Steerings obsEnum, Func<bool> isOnSight, Transform self, float desiredSpeed)
+    private Action<Vector3> _onRotate;
+    public EnemyEvadeState(Action<Vector3, float> onEvade, Action<Vector3> onRotate, INode root, ObstacleAvoidance obs, Steerings obsEnum, Func<bool> isOnSight, Transform self, float desiredSpeed)
     {
         _onEvade = onEvade;
         _root = root;
@@ -23,7 +24,7 @@ class SafeEnemyEvadeState<T> : State<T>
         _isOnSight = isOnSight;
         _self = self;
         _desiredSpeed = desiredSpeed;
-        _canShoot = canShoot;
+        _onRotate = onRotate;
     }
 
     public override void Awake()
@@ -38,12 +39,8 @@ class SafeEnemyEvadeState<T> : State<T>
             _root.Execute();
             return;
         }
-        if (_isOnSight() && _canShoot())
-        {
-            _root.Execute();
-            return;
-        }
-        _onEvade?.Invoke(_self.forward, _desiredSpeed, _obs.GetFixedDir());
+        _onEvade?.Invoke(_self.forward, _desiredSpeed);
+        _onRotate?.Invoke(_obs.GetFixedDir());
     }
 
 }

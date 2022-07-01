@@ -13,6 +13,7 @@ public class BaseEnemyController : MonoBehaviour
     protected LineOfSight _lineOfSight;
     protected INode _root;
     protected LifeController lifeController;
+
     protected virtual void Awake()
     {
         _lineOfSight = GetComponent<LineOfSight>();
@@ -20,6 +21,7 @@ public class BaseEnemyController : MonoBehaviour
         lifeController.actionToDo += DieActions;
         InitBehaviours();
         _obstacleAvoidance = new ObstacleAvoidance(transform, _actualTarget, obstacleAvoidanceSO, behaviours);
+        _actualTarget = GameManager.Instance.PlayerModel;
     }
     protected virtual void Start()
     {
@@ -46,6 +48,11 @@ public class BaseEnemyController : MonoBehaviour
     }
     protected virtual void DieActions()
     {
+        Destroy(gameObject);
+    }
+    protected virtual bool HasTakenDamage()
+    {
+       return lifeController.HasTakenDamage();
     }
 
 }

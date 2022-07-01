@@ -1,71 +1,70 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-public class MonitorController : BaseEnemyController
+using System;
+public class EvadeRobotController : BaseEnemyController
 {
     enum enemyStates
     {
         Idle,
         Patrol,
         Seek,
-        Chase,
-        Shoot
+        Evade,
     }
 
     [SerializeField] private Transform[] wayPoints;
-    [SerializeField] private Transform returnPoint;
-    private MonitorModel _enemyModel;
-    private MonitorView _enemyView;
+    private EvadeRobotModel _enemyModel;
+    //private SecurityEnemyView _enemyView;
     private FSM<enemyStates> _fsm;
-    public event Action<Vector3, float> onMove;
+
     public event Action<Vector3> onRotate;
+    public event Action<Vector3, float> onMove;
     public event Action<bool> onDetect;
     public event Action onDie;
-    public event Action onShoot;
+    public event Action onEvade;
     protected override void Awake()
     {
         base.Awake();
-        _enemyModel = GetComponent<MonitorModel>();
-        _enemyView = GetComponent<MonitorView>();
+        _enemyModel = GetComponent<EvadeRobotModel>();
+       // _enemyView = GetComponent<SecurityEnemyView>();
         lifeController = GetComponent<LifeController>();
         lifeController.actionToDo += DieActions;
     }
     protected override void Start()
     {
         _enemyModel.SuscribeEvents(this);
-        _enemyView.SuscribeEvents(this);
+        //_enemyView.SuscribeEvents(this);
         base.Start();
+
     }
     protected override void InitBehaviours()
     {
         var seek = new Seek(_actualTarget.transform, transform);
         behaviours.Add(Steerings.Seek, seek);
-        //var persuit = new Chase(_actualTarget.transform, transform, _actualTarget, obstacleAvoidanceSO.PredictionTime);
-        //behaviours.Add(Steerings.Chase, persuit);
+        var evade = new Evade(_actualTarget.transform, transform, _actualTarget, obstacleAvoidanceSO.PredictionTime);
+        behaviours.Add(Steerings.Evade, evade);
     }
     protected override void InitFSM()
     {
-        var shoot = new EnemyShootState<enemyStates>(Shoot, MovementCommand, RotateCommand, _root, _obstacleAvoidance, Steerings.Seek, DetectCommand, CheckForShooting, transform, _enemyModel.Stats.SeekSpeed);
-        var idle = new EnemyIdleStates<enemyStates>(IdleCommand, _root, DetectCommand);
+        var patrol = new EnemyPatrolState<enemyStates>(MovementCommand, RotateCommand, HasTakenDamage, transform, _root, wayPoints, Steerings.Seek, _obstacleAvoidance, DetectCommand, _enemyModel.Stats.PatrolSpeed);
+        var evade = new EnemyEvadeState<enemyStates>(MovementCommand,RotateCommand, _root, _obstacleAvoidance, Steerings.Evade, DetectCommand, transform, _enemyModel.Stats.SeekSpeed);
 
-        idle.AddTransition(enemyStates.Shoot, shoot);
+        evade.AddTransition(enemyStates.Patrol, patrol);
 
-        shoot.AddTransition(enemyStates.Idle, idle);
+        patrol.AddTransition(enemyStates.Evade, evade);
 
-        _fsm = new FSM<enemyStates>(idle);
+
+        _fsm = new FSM<enemyStates>(patrol);
     }
     protected override void InitDesitionTree()
     {
-        INode shoot = new ActionNode(() => _fsm.Transition(enemyStates.Shoot));
-        INode idle = new ActionNode(() => _fsm.Transition(enemyStates.Idle));
 
-        INode QCanShoot = new QuestionNode(CheckForShooting, shoot, idle);
-        INode QOnSight = new QuestionNode(DetectCommand, QCanShoot, idle);
-        INode QPlayerAlive = new QuestionNode(CheckForPlayer, QOnSight, idle);
+        INode evade = new ActionNode(() => _fsm.Transition(enemyStates.Evade));
+        INode patrol = new ActionNode(() => _fsm.Transition(enemyStates.Patrol));
+
+        INode QOnSight = new QuestionNode(DetectCommand, evade, patrol);
+        INode QTakeDamage = new QuestionNode(HasTakenDamage, evade, QOnSight);
+        INode QPlayerAlive = new QuestionNode(CheckForPlayer, QTakeDamage, patrol);
         _root = QPlayerAlive;
     }
 
@@ -85,7 +84,7 @@ public class MonitorController : BaseEnemyController
 
     private void IdleCommand()
     {
-        onRotate?.Invoke(returnPoint.position - transform.position);
+        onMove(transform.forward, 0);
     }
     private bool CheckForShooting()
     {
@@ -97,23 +96,17 @@ public class MonitorController : BaseEnemyController
 
         return true;
     }
-
-    private void Shoot()
-    {
-        onShoot?.Invoke();
-    }
     private void MovementCommand(Vector3 moveDir, float desiredSpeed)
     {
+        onMove?.Invoke(moveDir, desiredSpeed);
     }
     private void RotateCommand(Vector3 rotationDir)
     {
         onRotate?.Invoke(_obstacleAvoidance.GetFixedDir(rotationDir));
-
     }
     public void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, obstacleAvoidanceSO.ShootDistance);
+
         Gizmos.color = Color.red;
         if (_obstacleAvoidance != null && _obstacleAvoidance.ActualBehaviour != null)
         {

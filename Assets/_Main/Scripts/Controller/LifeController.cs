@@ -7,12 +7,14 @@ using UnityEngine;
 public class LifeController : MonoBehaviour
 {
     private float _currentLife;
-    [SerializeField]private float _maxLife;
+    [SerializeField] private float _maxLife;
     public Action actionToDo;
     [SerializeField] private bool isInmortal;
+    private float lifeCache;
     private void Start()
     {
         _currentLife = _maxLife;
+        lifeCache = _maxLife;
     }
     public void TakeDamage(float damage)
     {
@@ -27,6 +29,15 @@ public class LifeController : MonoBehaviour
                 actionToDo?.Invoke();
             }
         }
+    }
+    public bool HasTakenDamage()
+    {
+        if(lifeCache == _currentLife)
+        {
+            return false;
+        }
+        lifeCache = _currentLife;
+        return true;
     }
 
 }

@@ -54,7 +54,7 @@ public class KamikaseController : BaseEnemyController
     protected override void InitFSM()
     {
         var chase = new KamikaseChaseState<states>(MovementCommand,RotateCommand,CheckForExplode, _root, _obstacleAvoidance, Steerings.Chase, DetectCommand, transform, _model.Stats.ChaseSpeed);
-        var patrol = new EnemyPatrolState<states>(MovementCommand, RotateCommand, transform, _root, wayPoints, Steerings.Seek, _obstacleAvoidance, DetectCommand, _model.Stats.PatrolSpeed);
+        var patrol = new EnemyPatrolState<states>(MovementCommand, RotateCommand,HasTakenDamage, transform, _root, wayPoints, Steerings.Seek, _obstacleAvoidance, DetectCommand, _model.Stats.PatrolSpeed);
         var explode = new KamikaseExplodeState<states>(CheckForExplode, ExplodeCommand, _root);
 
         chase.AddTransition(states.Explode, explode);

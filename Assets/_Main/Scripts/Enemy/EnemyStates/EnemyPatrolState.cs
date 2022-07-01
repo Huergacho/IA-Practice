@@ -12,12 +12,13 @@ public class EnemyPatrolState<T> : State<T>
     private Steerings _obsEnum;
     private ObstacleAvoidance _obs;
     private Func<bool> _isOnSight;
+    private Func<bool> _tookDamage;
     private Transform[] _wayPoints;
     private Transform currWayPoint;
     private Transform _self;
     private int currentWayPointIndex;
     private float _desiredSpeed;
-    public EnemyPatrolState(Action<Vector3, float> patrol,Action<Vector3>onRotate,Transform self, INode root, Transform[] wayPoints, Steerings obsEnum, 
+    public EnemyPatrolState(Action<Vector3, float> patrol,Action<Vector3>onRotate, Func<bool> tookDamage,Transform self, INode root, Transform[] wayPoints, Steerings obsEnum, 
         ObstacleAvoidance obs, Func<bool> isOnSight, float desiredSpeed)
     {
         _patrol = patrol;
@@ -28,6 +29,7 @@ public class EnemyPatrolState<T> : State<T>
         _obsEnum = obsEnum;
         _isOnSight = isOnSight;
         _desiredSpeed = desiredSpeed;
+        _tookDamage = tookDamage;
         currentWayPointIndex = 0;
         _onRotate = onRotate;
     }
@@ -39,6 +41,11 @@ public class EnemyPatrolState<T> : State<T>
     public override void Execute()
     {
         if (_isOnSight())
+        {
+            _root.Execute();
+            return;
+        }
+        if (_tookDamage())
         {
             _root.Execute();
             return;

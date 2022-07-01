@@ -17,10 +17,11 @@ MonoBehaviour:
     m_Bits: 64
   radius: 3
   angle: 265
-  predictionTime: 1
+  predictionTime: 2.75
   avoidanceMult: 2
   behaviourMult: 1
   chaseTime: 3
-  seekDistance: 10
+  seekDistance: 20
   chaseDistance: 20
   shootDistance: 15
+  explodeDistance: 0
