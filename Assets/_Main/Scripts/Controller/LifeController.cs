@@ -11,6 +11,7 @@ public class LifeController : MonoBehaviour
     public Action actionToDo;
     [SerializeField] private bool isInmortal;
     private float lifeCache;
+    public event Action<float> updateLifeBar;
     private void Start()
     {
         _currentLife = _maxLife;
@@ -19,6 +20,7 @@ public class LifeController : MonoBehaviour
     public void TakeDamage(float damage)
     {
         _currentLife -= damage;
+        updateLifeBar?.Invoke(_currentLife);
     }
     public void CheckCurrentLife()
     {
